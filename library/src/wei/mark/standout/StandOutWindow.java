@@ -49,6 +49,11 @@ public abstract class StandOutWindow extends Service {
 	static final String TAG = "StandOutWindow";
 
 	/**
+	 * StandOut notification: Set to true for using Notifications. Default = false
+	 */
+	public static final boolean NOTIFICATION = false;
+
+	/**
 	 * StandOut window id: You may use this sample id for your first window.
 	 */
 	public static final int DEFAULT_ID = 0;
@@ -136,7 +141,7 @@ public abstract class StandOutWindow extends Service {
 	 */
 	public static void hide(Context context,
 			Class<? extends StandOutWindow> cls, int id) {
-		context.startService(getShowIntent(context, cls, id));
+		context.startService(getHideIntent(context, cls, id));
 	}
 
 	/**
@@ -396,7 +401,7 @@ public abstract class StandOutWindow extends Service {
 				Class<? extends StandOutWindow> fromCls = (Class<? extends StandOutWindow>) intent
 						.getSerializableExtra("wei.mark.standout.fromCls");
 				int fromId = intent.getIntExtra("fromId", DEFAULT_ID);
-				onReceiveData(id, requestCode, data, fromCls, fromId);
+				onReceiveData(id, requestCode, data);//, fromCls, fromId);
 			}
 		} else {
 			Log.w(TAG, "Tried to onStartCommand() with a null intent.");
@@ -986,6 +991,25 @@ public abstract class StandOutWindow extends Service {
 
 	/**
 	 * Implement this callback to be alerted when a window corresponding to the
+	 * id has received some data. The sender is described by fromCls and fromId
+	 * if the sender wants a result. To send a result, use
+	 * {@link #sendData(int, Class, int, int, Bundle)}.
+	 * 
+	 * @param id
+	 *            The id of your receiving window.
+	 * @param requestCode
+	 *            The sending window provided this request code to declare what
+	 *            kind of data is being sent.
+	 * @param data
+	 *            A bundle of parceleable data that was sent to your receiving
+	 *            window.
+	 */
+	public void onReceiveData(int id, int requestCode, Bundle data) {
+
+	}
+
+	/**
+	 * Implement this callback to be alerted when a window corresponding to the
 	 * id is about to be updated in the layout. This callback will occur before
 	 * the view is updated by the window manager.
 	 * 
@@ -1112,34 +1136,36 @@ public abstract class StandOutWindow extends Service {
 		// add view to internal map
 		sWindowCache.putCache(id, getClass(), window);
 
-		// get the persistent notification
-		Notification notification = getPersistentNotification(id);
+		if(NOTIFICATION == true) {
+			// get the persistent notification
+			Notification notification = getPersistentNotification(id);
 
-		// show the notification
-		if (notification != null) {
-			notification.flags = notification.flags
+			// show the notification
+			if (notification != null) {
+				notification.flags = notification.flags
 					| Notification.FLAG_NO_CLEAR;
 
-			// only show notification if not shown before
-			if (!startedForeground) {
-				// tell Android system to show notification
-				startForeground(
+				// only show notification if not shown before
+				if (!startedForeground) {
+					// tell Android system to show notification
+					startForeground(
 						getClass().hashCode() + ONGOING_NOTIFICATION_ID,
 						notification);
-				startedForeground = true;
-			} else {
-				// update notification if shown before
-				mNotificationManager.notify(getClass().hashCode()
+					startedForeground = true;
+				} else {
+					// update notification if shown before
+					mNotificationManager.notify(getClass().hashCode()
 						+ ONGOING_NOTIFICATION_ID, notification);
-			}
-		} else {
-			// notification can only be null if it was provided before
-			if (!startedForeground) {
-				throw new RuntimeException("Your StandOutWindow service must"
+				}
+			} else {
+				// notification can only be null if it was provided before
+				if (!startedForeground) {
+					throw new RuntimeException("Your StandOutWindow service must"
 						+ "provide a persistent notification."
 						+ "The notification prevents Android"
 						+ "from killing your service in low"
 						+ "memory situations.");
+				}
 			}
 		}
 
@@ -1179,9 +1205,11 @@ public abstract class StandOutWindow extends Service {
 		if (Utils.isSet(window.flags, StandOutFlags.FLAG_WINDOW_HIDE_ENABLE)) {
 			window.visibility = Window.VISIBILITY_TRANSITION;
 
-			// get the hidden notification for this view
-			Notification notification = getHiddenNotification(id);
-
+			if(NOTIFICATION) {
+				// get the hidden notification for this view
+				Notification notification = getHiddenNotification(id);
+			}
+			
 			// get animation
 			Animation animation = getHideAnimation(id);
 
@@ -1214,14 +1242,16 @@ public abstract class StandOutWindow extends Service {
 				ex.printStackTrace();
 			}
 
-			// display the notification
-			notification.flags = notification.flags
+			if(NOTIFICATION) {
+				// display the notification
+				notification.flags = notification.flags
 					| Notification.FLAG_NO_CLEAR
 					| Notification.FLAG_AUTO_CANCEL;
 
-			mNotificationManager.notify(getClass().hashCode() + id,
+				mNotificationManager.notify(getClass().hashCode() + id,
 					notification);
-
+			}
+			
 		} else {
 			// if hide not enabled, close window
 			close(id);
@@ -1253,9 +1283,11 @@ public abstract class StandOutWindow extends Service {
 			return;
 		}
 
-		// remove hidden notification
-		mNotificationManager.cancel(getClass().hashCode() + id);
-
+		if(NOTIFICATION) {
+			// remove hidden notification
+			mNotificationManager.cancel(getClass().hashCode() + id);
+		}
+		
 		unfocus(window);
 
 		window.visibility = Window.VISIBILITY_TRANSITION;
