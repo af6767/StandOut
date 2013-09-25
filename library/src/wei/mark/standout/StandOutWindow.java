@@ -1205,9 +1205,10 @@ public abstract class StandOutWindow extends Service {
 		if (Utils.isSet(window.flags, StandOutFlags.FLAG_WINDOW_HIDE_ENABLE)) {
 			window.visibility = Window.VISIBILITY_TRANSITION;
 
+			Notification notification;
 			if(NOTIFICATION) {
 				// get the hidden notification for this view
-				Notification notification = getHiddenNotification(id);
+				notification = getHiddenNotification(id);
 			}
 			
 			// get animation
