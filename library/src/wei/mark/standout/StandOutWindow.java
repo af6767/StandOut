@@ -1503,6 +1503,22 @@ public abstract class StandOutWindow extends Service {
 	}
 
 	/**
+	 * already showing up window with an existing id.
+	 * 
+	 * @param id
+	 *            The id representing this window. The window must previously be
+	 *            shown.
+	 *
+	 * @return boolean
+	 */
+	public final boolean isShown(int id) {
+		if(isExistingId(id)== true  && getWindow(id).visibility == 1)
+			return true;
+		else
+			return false;
+	}
+
+	/**
 	 * Return whether the window corresponding to the id exists. This is useful
 	 * for testing if the id is being restored (return true) or shown for the
 	 * first time (return false).
