@@ -18,6 +18,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.test.IsolatedContext;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
