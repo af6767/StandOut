@@ -344,7 +344,7 @@ public abstract class StandOutWindow extends Service {
 
 	// internal system services
 	WindowManager mWindowManager;
-	private NotificationManager mNotificationManager;
+	//private NotificationManager mNotificationManager;
 	LayoutInflater mLayoutInflater;
 
 	// internal state variables
@@ -360,7 +360,7 @@ public abstract class StandOutWindow extends Service {
 		super.onCreate();
 
 		mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		//mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mLayoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 		startedForeground = false;
@@ -397,10 +397,10 @@ public abstract class StandOutWindow extends Service {
 				}
 				Bundle data = intent.getBundleExtra("wei.mark.standout.data");
 				int requestCode = intent.getIntExtra("requestCode", 0);
-				@SuppressWarnings("unchecked")
+				/*@SuppressWarnings("unchecked")
 				Class<? extends StandOutWindow> fromCls = (Class<? extends StandOutWindow>) intent
 						.getSerializableExtra("wei.mark.standout.fromCls");
-				int fromId = intent.getIntExtra("fromId", DEFAULT_ID);
+				int fromId = intent.getIntExtra("fromId", DEFAULT_ID);*/
 				onReceiveData(id, requestCode, data);//, fromCls, fromId);
 			}
 		} else {
@@ -636,7 +636,7 @@ public abstract class StandOutWindow extends Service {
 	 * @return The {@link Notification} corresponding to the id, or null if
 	 *         you've previously returned a notification.
 	 */
-	public Notification getPersistentNotification(int id) {
+	/*public Notification getPersistentNotification(int id) {
 		// basic notification stuff
 		// http://developer.android.com/guide/topics/ui/notifiers/notifications.html
 		int icon = getAppIcon();
@@ -664,7 +664,7 @@ public abstract class StandOutWindow extends Service {
 		notification.setLatestEventInfo(c, contentTitle, contentText,
 				contentIntent);
 		return notification;
-	}
+	}*/
 
 	/**
 	 * Return a hidden {@link Notification} for the corresponding id. The system
@@ -683,7 +683,7 @@ public abstract class StandOutWindow extends Service {
 	 *            The id of the window.
 	 * @return The {@link Notification} corresponding to the id or null.
 	 */
-	public Notification getHiddenNotification(int id) {
+	/*public Notification getHiddenNotification(int id) {
 		// same basics as getPersistentNotification()
 		int icon = getHiddenIcon();
 		long when = System.currentTimeMillis();
@@ -708,7 +708,7 @@ public abstract class StandOutWindow extends Service {
 		notification.setLatestEventInfo(c, contentTitle, contentText,
 				contentIntent);
 		return notification;
-	}
+	}*/
 
 	/**
 	 * Return the animation to play when the window corresponding to the id is
@@ -1137,7 +1137,7 @@ public abstract class StandOutWindow extends Service {
 		// add view to internal map
 		sWindowCache.putCache(id, getClass(), window);
 
-		if(NOTIFICATION == true) {
+		/*if(NOTIFICATION == true) {
 			// get the persistent notification
 			Notification notification = getPersistentNotification(id);
 
@@ -1168,7 +1168,7 @@ public abstract class StandOutWindow extends Service {
 						+ "memory situations.");
 				}
 			}
-		}
+		}*/
 
 		focus(id);
 
@@ -1187,13 +1187,15 @@ public abstract class StandOutWindow extends Service {
 		final Window window = getWindow(id);
 
 		if (window == null) {
-			throw new IllegalArgumentException("Tried to hide(" + id
-					+ ") a null window.");
+			/*throw new IllegalArgumentException("Tried to hide(" + id
+					+ ") a null window.");*/
+			return; // nix zu tun für uns
 		}
 
 		if (window.visibility == Window.VISIBILITY_GONE) {
-			throw new IllegalStateException("Tried to hide(" + id
-					+ ") a window that is not shown.");
+			/*throw new IllegalStateException("Tried to hide(" + id
+					+ ") a window that is not shown.");*/
+			return; // nix zu tun für uns
 		}
 
 		// alert callbacks and cancel if instructed
@@ -1206,11 +1208,11 @@ public abstract class StandOutWindow extends Service {
 		if (Utils.isSet(window.flags, StandOutFlags.FLAG_WINDOW_HIDE_ENABLE)) {
 			window.visibility = Window.VISIBILITY_TRANSITION;
 
-			Notification notification;
+			/*Notification notification;
 			if(NOTIFICATION) {
 				// get the hidden notification for this view
 				notification = getHiddenNotification(id);
-			}
+			}*/
 			
 			// get animation
 			Animation animation = getHideAnimation(id);
@@ -1244,7 +1246,7 @@ public abstract class StandOutWindow extends Service {
 				ex.printStackTrace();
 			}
 
-			if(NOTIFICATION) {
+			/*if(NOTIFICATION) {
 				// display the notification
 				notification.flags = notification.flags
 					| Notification.FLAG_NO_CLEAR
@@ -1252,7 +1254,7 @@ public abstract class StandOutWindow extends Service {
 
 				mNotificationManager.notify(getClass().hashCode() + id,
 					notification);
-			}
+			}*/
 			
 		} else {
 			// if hide not enabled, close window
@@ -1271,8 +1273,9 @@ public abstract class StandOutWindow extends Service {
 		final Window window = getWindow(id);
 
 		if (window == null) {
-			throw new IllegalArgumentException("Tried to close(" + id
-					+ ") a null window.");
+			/*throw new IllegalArgumentException("Tried to close(" + id
+					+ ") a null window.");*/
+			return; // nix zu tun für uns
 		}
 
 		if (window.visibility == Window.VISIBILITY_TRANSITION) {
@@ -1285,10 +1288,10 @@ public abstract class StandOutWindow extends Service {
 			return;
 		}
 
-		if(NOTIFICATION) {
+		/*if(NOTIFICATION) {
 			// remove hidden notification
 			mNotificationManager.cancel(getClass().hashCode() + id);
-		}
+		}*/
 		
 		unfocus(window);
 
@@ -1411,13 +1414,15 @@ public abstract class StandOutWindow extends Service {
 	public final synchronized void bringToFront(int id) {
 		Window window = getWindow(id);
 		if (window == null) {
-			throw new IllegalArgumentException("Tried to bringToFront(" + id
-					+ ") a null window.");
+			/*throw new IllegalArgumentException("Tried to bringToFront(" + id
+					+ ") a null window.");*/
+			return; // nix zu tun für uns
 		}
 
 		if (window.visibility == Window.VISIBILITY_GONE) {
-			throw new IllegalStateException("Tried to bringToFront(" + id
-					+ ") a window that is not shown.");
+			/*throw new IllegalStateException("Tried to bringToFront(" + id
+					+ ") a window that is not shown.");*/
+			return; // nix zu tun für uns
 		}
 
 		if (window.visibility == Window.VISIBILITY_TRANSITION) {
@@ -1459,8 +1464,9 @@ public abstract class StandOutWindow extends Service {
 		// check if that window is focusable
 		final Window window = getWindow(id);
 		if (window == null) {
-			throw new IllegalArgumentException("Tried to focus(" + id
-					+ ") a null window.");
+			/*throw new IllegalArgumentException("Tried to focus(" + id
+					+ ") a null window.");*/
+			return true; // nix zu tun für uns
 		}
 
 		if (!Utils.isSet(window.flags,
@@ -1765,8 +1771,9 @@ public abstract class StandOutWindow extends Service {
 	 */
 	public synchronized boolean unfocus(Window window) {
 		if (window == null) {
-			throw new IllegalArgumentException(
-					"Tried to unfocus a null window.");
+			/*throw new IllegalArgumentException(
+					"Tried to unfocus a null window.");*/
+			return true; // nix zu tun für uns
 		}
 		return window.onFocus(false);
 	}
@@ -1783,8 +1790,9 @@ public abstract class StandOutWindow extends Service {
 		Window window = getWindow(id);
 
 		if (window == null) {
-			throw new IllegalArgumentException("Tried to updateViewLayout("
-					+ id + ") a null window.");
+			/*throw new IllegalArgumentException("Tried to updateViewLayout("
+					+ id + ") a null window.");*/
+			return; // keine Aktion
 		}
 
 		if (window.visibility == Window.VISIBILITY_GONE) {
